@@ -66,6 +66,7 @@ COPY styles FROM '/Users/jessicachen/Downloads/styles.csv' DELIMITER ',' NULL AS
 COPY skus FROM '/Users/jessicachen/Downloads/skus.csv' DELIMITER ',' CSV HEADER;
 COPY photos FROM '/Users/jessicachen/Downloads/photos.csv' DELIMITER ',' CSV HEADER;
 
+-- adds campus and time stamps to product table
 ALTER TABLE product
 ADD COLUMN IF NOT EXISTS campus VARCHAR(6) DEFAULT 'hr-rfp',
 ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -96,20 +97,64 @@ RETURNS JSON AS $$
     one_id INTEGER := target;
     featArr JSON;
   BEGIN
-    SELECT INTO featArr (SELECT JSON_AGG(e) from (select f.feature, f.value FROM product AS p
-    INNER JOIN features as f ON p.id = f.product_id WHERE p.id=one_id)e);
+    SELECT INTO featArr (SELECT JSON_AGG(e) FROM
+      (SELECT f.feature, f.value FROM product AS p
+      INNER JOIN features as f ON p.id = f.product_id WHERE p.id=one_id)e);
     RETURN JSON_BUILD_OBJECT('id', p.id, 'campus', p.campus, 'name', p.name, 'slogan', p.slogan, 'description', p.description,
-    'category', p.category, 'default_price', p.default_price, 'created_at', p.created_at, 'updated_at', p.updated_at, 'features', featArr)
-    FROM product AS p
-    INNER JOIN features as f ON p.id = f.product_id WHERE p.id=one_id
-    GROUP BY p.id;
+      'category', p.category, 'default_price', p.default_price, 'created_at', p.created_at, 'updated_at', p.updated_at, 'features', featArr)
+      FROM product AS p
+      INNER JOIN features AS f ON p.id = f.product_id WHERE p.id=one_id
+      GROUP BY p.id;
+  END;
+$$ LANGUAGE plpgsql;
+
+-- query for one style
+SELECT s.id, s.name, s.original_price, s.sale_price, s.default_style
+FROM styles AS s WHERE s.id=1;
+-- photos for one style
+SELECT JSON_AGG(e) FROM (SELECT ph.thumbnail_url, ph.url FROM photos AS ph WHERE ph.styleId=1)e;
+
+-- function to get one style by argument style_id, formatted as an object
+-- execute with $ SELECT get_one_style(1);
+CREATE OR REPLACE FUNCTION get_one_style (target INTEGER)
+RETURNS JSON AS $$
+  DECLARE
+    one_id INTEGER := target;
+    photosArr JSON;
+  BEGIN
+    SELECT INTO photosArr (SELECT JSON_AGG(e) FROM
+      (SELECT ph.thumbnail_url, ph.url FROM photos AS ph WHERE ph.styleId=one_id)e);
+    RETURN JSON_BUILD_OBJECT('style_id', s.id, 'name', s.name, 'original_price', to_char(s.original_price, 'FM9999D00'),
+      'sale_price', s.sale_price, 'default?', s.default_style, 'photos', photosArr)
+      FROM styles AS s WHERE s.id=one_id;
+  END;
+$$ LANGUAGE plpgsql;
+
+-- function to get all styles for a product_id
+-- **** DOES NOT CURRENTLY WORK ****
+CREATE OR REPLACE FUNCTION get_all_styles (target INTEGER)
+RETURNS JSON AS $$
+  DECLARE
+    one_id INTEGER := target;
+    styleIdArr JSON ARRAY;
+    resultsArr JSON;
+    rec RECORD;
+  BEGIN
+    SELECT INTO styleIdArr (SELECT ARRAY_AGG(e) FROM
+      (SELECT styles.id FROM styles WHERE styles.productId = one_id)e);
+    FOREACH rec IN ARRAY styleIdArr
+    LOOP
+      SELECT INTO resultsArr (SELECT get_all_styles(rec.id));
+    END LOOP;
+
+    RETURN resultsArr;
+
   END;
 $$ LANGUAGE plpgsql;
 
 
-
-
 /* Original Denormalized tables
+
 CREATE TABLE product(
   id INTEGER PRIMARY KEY,
   campus VARCHAR(6) DEFAULT 'hr-rfp',
