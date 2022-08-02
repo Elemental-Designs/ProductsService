@@ -100,13 +100,20 @@ CREATE OR REPLACE FUNCTION get_one_product (target INTEGER)
 RETURNS JSON AS $$
   DECLARE
     one_id INTEGER := target;
-    featArr JSON;
   BEGIN
-    SELECT INTO featArr (SELECT JSON_AGG(e) FROM
-      (SELECT f.feature, f.value FROM product AS p
-      INNER JOIN features as f ON p.id = f.product_id WHERE p.id=one_id)e);
-    RETURN JSON_BUILD_OBJECT('id', p.id, 'campus', p.campus, 'name', p.name, 'slogan', p.slogan, 'description', p.description,
-      'category', p.category, 'default_price', p.default_price, 'created_at', p.created_at, 'updated_at', p.updated_at, 'features', featArr)
+    RETURN JSON_BUILD_OBJECT(
+      'id', p.id,
+      'campus', p.campus,
+      'name', p.name,
+      'slogan', p.slogan,
+      'description', p.description,
+      'category', p.category,
+      'default_price', p.default_price,
+      'created_at', p.created_at,
+      'updated_at', p.updated_at,
+      'features', (SELECT JSON_AGG(e) FROM
+        (SELECT f.feature, f.value FROM product AS p
+        INNER JOIN features as f ON p.id = f.product_id WHERE p.id=one_id)e))
       FROM product AS p
       INNER JOIN features AS f ON p.id = f.product_id WHERE p.id=one_id
       GROUP BY p.id;
