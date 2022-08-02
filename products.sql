@@ -80,7 +80,7 @@ CREATE FUNCTION set_updatedAt() RETURNS TRIGGER AS $$
   END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_updatedAt
+CREATE TRIGGER update_updated_at
   BEFORE UPDATE ON product
   FOR EACH ROW
   EXECUTE FUNCTION set_updatedAt();
@@ -120,38 +120,51 @@ CREATE OR REPLACE FUNCTION get_one_style (target INTEGER)
 RETURNS JSON AS $$
   DECLARE
     one_id INTEGER := target;
-    photosArr JSON;
   BEGIN
-    SELECT INTO photosArr (SELECT JSON_AGG(e) FROM
-      (SELECT ph.thumbnail_url, ph.url FROM photos AS ph WHERE ph.styleId=one_id)e);
     RETURN JSON_BUILD_OBJECT('style_id', s.id, 'name', s.name, 'original_price', to_char(s.original_price, 'FM9999D00'),
-      'sale_price', s.sale_price, 'default?', s.default_style, 'photos', photosArr)
+      'sale_price', s.sale_price, 'default?', s.default_style, 'photos', (SELECT JSON_AGG(e) FROM
+      (SELECT ph.thumbnail_url, ph.url FROM photos AS ph WHERE ph.styleId=one_id)e))
       FROM styles AS s WHERE s.id=one_id;
   END;
 $$ LANGUAGE plpgsql;
 
 -- function to get all styles for a product_id
--- **** DOES NOT CURRENTLY WORK ****
+-- execute with $ SELECT get_all_styles(1);
 CREATE OR REPLACE FUNCTION get_all_styles (target INTEGER)
 RETURNS JSON AS $$
   DECLARE
     one_id INTEGER := target;
-    styleIdArr JSON ARRAY;
-    resultsArr JSON;
-    rec RECORD;
   BEGIN
-    SELECT INTO styleIdArr (SELECT ARRAY_AGG(e) FROM
-      (SELECT styles.id FROM styles WHERE styles.productId = one_id)e);
-    FOREACH rec IN ARRAY styleIdArr
-    LOOP
-      SELECT INTO resultsArr (SELECT get_all_styles(rec.id));
-    END LOOP;
-
-    RETURN resultsArr;
-
+    RETURN JSON_BUILD_OBJECT(
+      'product_id', to_char(one_id, 'FM999999'),
+      'results', COALESCE(
+        (SELECT JSON_AGG(e) FROM (
+          SELECT
+            s.id AS style_id,
+            s.name,
+            to_char(s.original_price, 'FM9999D00') AS original_price,
+            CASE
+              WHEN s.sale_price=null THEN null
+              ELSE to_char(s.sale_price, 'FM9999D00')
+            END AS sale_price,
+            s.default_style AS "default?",
+            COALESCE(
+              (SELECT JSON_AGG(f) FROM
+                (SELECT ph.thumbnail_url, ph.url FROM photos AS ph WHERE ph.styleId=s.id)f)
+            , '[]') AS photos,
+            COALESCE(
+              (SELECT JSON_OBJECT_AGG(skus.id,
+                (SELECT JSON_BUILD_OBJECT(
+                  'quantity', skus.quantity,
+                  'size', skus.size)
+                )
+              ) FROM skus WHERE skus.styleId=s.id)
+            , '{}') AS skus
+          FROM styles AS s WHERE s.productId = one_id)e)
+        , '[]')
+      );
   END;
 $$ LANGUAGE plpgsql;
-
 
 /* Original Denormalized tables
 
