@@ -58,6 +58,11 @@ CREATE TABLE photos(
   thumbnail_url TEXT
 );
 
+/*
+To add missing " in photos.csv
+sed -i 's/q=80$/q=80"/g' photos.csv
+*/
+
 -- ETL code
 COPY product FROM '/Users/jessicachen/Downloads/product.csv' DELIMITER ',' CSV HEADER;
 COPY related FROM '/Users/jessicachen/Downloads/related.csv' DELIMITER ',' CSV HEADER where related_product_id > 0;
@@ -163,6 +168,19 @@ RETURNS JSON AS $$
           FROM styles AS s WHERE s.productId = one_id)e)
         , '[]')
       );
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_related (target INTEGER)
+RETURNS JSON AS $$
+  DECLARE
+    one_id INTEGER := target;
+  BEGIN
+    RETURN COALESCE(
+      TO_JSON(
+        ARRAY(SELECT r.related_product_id FROM related AS r WHERE r.current_product_id=one_id)
+      ), '[]'
+    );
   END;
 $$ LANGUAGE plpgsql;
 
