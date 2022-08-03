@@ -24,10 +24,7 @@ module.exports.getOneProduct = (req, res) => {
     handleError(res, 400, 'invalid product_id');
     return;
   };
-  let params = {
-    product_id: req.params.product_id
-  };
-  models.readOneProduct(params)
+  models.readOneProduct(req.params)
     .then((result) => {
       if (result instanceof Error) {
         console.log('Error getting product ', req.params.product_id, ': ', result);
@@ -42,10 +39,7 @@ module.exports.getStyles = (req, res) => {
   if (!req.params.product_id || Number(req.params.product_id) < 0) {
     handleError(res, 400, 'invalid product_id');
   };
-  let params = {
-    product_id: req.params.product_id
-  };
-  models.readStyles(params)
+  models.readStyles(req.params)
     .then((result) => {
       if (result instanceof Error) {
         console.log('Error getting styles for product ', req.params.product_id, ': ', result);
@@ -60,10 +54,7 @@ module.exports.getRelated = (req, res) => {
   if (!req.params.product_id || Number(req.params.product_id) < 0) {
     handleError(res, 400, 'invalid product_id');
   };
-  let params = {
-    product_id: req.params.product_id
-  };
-  models.readRelated(params)
+  models.readRelated(req.params)
     .then((result) => {
       if (result instanceof Error) {
         console.log('Error getting related products for product ', req.params.product_id, ': ', result);
