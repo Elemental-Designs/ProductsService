@@ -1,7 +1,7 @@
 const models = require('./models.js');
 
-const handleResponse = (res, data, code) => res.status(code).send(data);
-const handleError = (res, err) => res.status(500).send(err);
+const handleResponse = (res, code, data) => res.status(code).send(data);
+const handleError = (res, code, err) => res.status(code).send(err);
 
 module.exports.getProducts = (req, res) => {
   let params = {
@@ -9,45 +9,55 @@ module.exports.getProducts = (req, res) => {
     count: req.query.count || 5
   }
   models.readProducts(params)
-    .then(({rows}) => handleResponse(res, rows, 200))
-    .catch((err) => console.log('Error getting products: ', err));
+    .then(({rows}) => handleResponse(res, 200, rows))
+    .catch((err) => {
+      console.log('Error getting products: ', err);
+      handleError(res, 500, err);
+    });
 };
 
 module.exports.getOneProduct = (req, res) => {
-  if (!req.params.product_id) {
-    handleError(res, 'invalid product_id');
+  if (!req.params.product_id || Number(req.params.product_id) < 0) {
+    handleError(res, 400, 'invalid product_id');
+    return;
   };
   let params = {
     product_id: req.params.product_id
   };
   models.readOneProduct(params)
-  .then(({rows}) => handleResponse(res, rows[0], 200))
-  .catch((err) =>
-    console.log('Error getting product ', req.params.product_id, ': ', err));
+  .then(({rows}) => handleResponse(res, 200, rows[0]))
+  .catch((err) => {
+    console.log('Error getting product ', req.params.product_id, ': ', err);
+    handleError(res, 500, err);
+  });
 };
 
 module.exports.getStyles = (req, res) => {
-  if (!req.params.product_id) {
-    handleError(res, 'invalid product_id');
+  if (!req.params.product_id || Number(req.params.product_id) < 0) {
+    handleError(res, 400, 'invalid product_id');
   };
   let params = {
     product_id: req.params.product_id
   };
   models.readStyles(params)
-  .then(({rows}) => handleResponse(res, rows[0], 200))
-  .catch((err) =>
-    console.log('Error getting styles for product ', req.params.product_id, ': ', err));
+  .then(({rows}) => handleResponse(res, 200, rows[0]))
+  .catch((err) => {
+    console.log('Error getting styles for product ', req.params.product_id, ': ', err);
+    handleError(res, 500, err);
+  });
 };
 
 module.exports.getRelated = (req, res) => {
-  if (!req.params.product_id) {
-    handleError(res, 'invalid product_id');
+  if (!req.params.product_id || Number(req.params.product_id) < 0) {
+    handleError(res, 400, 'invalid product_id');
   };
   let params = {
     product_id: req.params.product_id
   };
   models.readRelated(params)
-  .then(({rows}) => handleResponse(res, rows[0].results, 200))
-  .catch((err) =>
-    console.log('Error getting related products for product ', req.params.product_id, ': ', err));
+  .then(({rows}) => handleResponse(res, 200, rows[0].results))
+  .catch((err) => {
+    console.log('Error getting related products for product ', req.params.product_id, ': ', err);
+    handleError(res, 500, err);
+  });
 };
