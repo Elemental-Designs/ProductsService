@@ -32,16 +32,16 @@ module.exports = {
       p.slogan,
       p.description,
       p.category,
-      to_char(p.default_price, 'FM999999D00') AS default_price,
+      to_char(p.default_price, 'FM9999999D00') AS default_price,
       p.created_at,
       p.updated_at,
-      (SELECT JSON_AGG(e) FROM
-        (SELECT f.feature, f.value FROM product AS p
-        INNER JOIN features as f ON p.id = f.product_id WHERE p.id=$1)e)
-        AS features
-      FROM product AS p
-      INNER JOIN features AS f ON p.id = f.product_id WHERE p.id=$1
-      GROUP BY p.id;
+      COALESCE(
+        (SELECT JSON_AGG(e) FROM
+          (SELECT f.feature, f.value FROM features AS f WHERE f.product_id=$1)e
+        )
+      , '[]') AS features
+    FROM product AS p
+    WHERE p.id=$1;
     `;
     return query(text, [product_id]);
   },
