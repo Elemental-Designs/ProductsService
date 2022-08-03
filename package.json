@@ -1,0 +1,27 @@
+{
+  "name": "elemental-designs-products-service",
+  "version": "1.0.0",
+  "main": "server/index.js",
+  "scripts": {
+    "test": "jest",
+    "server-dev": "npx nodemon --watch server server/index.js",
+    "start": "node server/index.js"
+  },
+  "author": "Jessica Chen",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Elemental-Designs/ProductsService"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "mongoose": "^6.5.0",
+    "pg": "^8.7.3"
+  },
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "eslint-config-airbnb": "^19.0.4",
+    "mocha": "^10.0.0",
+    "supertest": "^6.2.4"
+  }
+}

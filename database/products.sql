@@ -90,9 +90,11 @@ CREATE TRIGGER update_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION set_updatedAt();
 
+/* Function versions of models
 -- query to get products, execute with $ SELECT * FROM get_products ORDER BY id LIMIT 5;
 CREATE OR REPLACE VIEW get_products AS
-SELECT id, campus, name, slogan, description, category, default_price, created_at, updated_at FROM product /*order by id limit 5*/;
+SELECT id, campus, name, slogan, description, category, default_price, created_at, updated_at FROM product
+order by id limit 5;
 
 -- function to get one product by argument product_id, formatted as an object
 -- execute with $ SELECT get_one_product(1);
@@ -190,6 +192,8 @@ RETURNS JSON AS $$
     );
   END;
 $$ LANGUAGE plpgsql;
+
+*/
 
 /* Original Denormalized tables
 
