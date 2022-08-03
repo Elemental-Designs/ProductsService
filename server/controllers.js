@@ -9,10 +9,13 @@ module.exports.getProducts = (req, res) => {
     count: req.query.count || 5
   }
   models.readProducts(params)
-    .then(({rows}) => handleResponse(res, 200, rows))
-    .catch((err) => {
-      console.log('Error getting products: ', err);
-      handleError(res, 500, err);
+    .then((result) => {
+      if (result instanceof Error) {
+        console.log('Error getting products: ', result);
+        handleError(res, 500, result);
+      } else {
+        handleResponse(res, 200, result.rows);
+      }
     });
 };
 
@@ -25,11 +28,14 @@ module.exports.getOneProduct = (req, res) => {
     product_id: req.params.product_id
   };
   models.readOneProduct(params)
-  .then(({rows}) => handleResponse(res, 200, rows[0]))
-  .catch((err) => {
-    console.log('Error getting product ', req.params.product_id, ': ', err);
-    handleError(res, 500, err);
-  });
+    .then((result) => {
+      if (result instanceof Error) {
+        console.log('Error getting product ', req.params.product_id, ': ', result);
+        handleError(res, 500, result);
+      } else {
+        handleResponse(res, 200, result.rows[0]);
+      }
+    });
 };
 
 module.exports.getStyles = (req, res) => {
@@ -40,11 +46,14 @@ module.exports.getStyles = (req, res) => {
     product_id: req.params.product_id
   };
   models.readStyles(params)
-  .then(({rows}) => handleResponse(res, 200, rows[0]))
-  .catch((err) => {
-    console.log('Error getting styles for product ', req.params.product_id, ': ', err);
-    handleError(res, 500, err);
-  });
+    .then((result) => {
+      if (result instanceof Error) {
+        console.log('Error getting styles for product ', req.params.product_id, ': ', result);
+        handleError(res, 500, result);
+      } else {
+        handleResponse(res, 200, result.rows[0]);
+      }
+    });
 };
 
 module.exports.getRelated = (req, res) => {
@@ -55,9 +64,12 @@ module.exports.getRelated = (req, res) => {
     product_id: req.params.product_id
   };
   models.readRelated(params)
-  .then(({rows}) => handleResponse(res, 200, rows[0].results))
-  .catch((err) => {
-    console.log('Error getting related products for product ', req.params.product_id, ': ', err);
-    handleError(res, 500, err);
-  });
+    .then((result) => {
+      if (result instanceof Error) {
+        console.log('Error getting related products for product ', req.params.product_id, ': ', result);
+        handleError(res, 500, result);
+      } else {
+        handleResponse(res, 200, result.rows[0].results);
+      }
+    });
 };

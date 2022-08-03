@@ -1,11 +1,24 @@
 const { Pool, Client } = require('pg');
 
-const client = new Client({
+const pool = new Pool({
   user: 'jessicachen',
   password: 'psql',
   host: process.env.DB_HOST,
   database: 'atelier',
 });
 
-client.connect();
-module.exports = (text, values) => client.query(text, values);
+module.exports = (text, values) => {
+  return pool.connect()
+    .then((client) => {
+      return client
+        .query(text, values)
+        .then((res) => {
+          client.release();
+          return res;
+        })
+        .catch((err) => {
+          client.release();
+          return new Error(err);
+        })
+    })
+};
