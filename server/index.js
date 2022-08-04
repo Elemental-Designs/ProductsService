@@ -10,7 +10,7 @@ const app = express();
 
 // app.use(morgan('tiny'));
 app.use(express.json());
-app.get('/loader*', (req, res) => { res.sendFile(path.join(__dirname, '..', 'loader.txt')); });
+app.get('/loader*', (req, res) => { res.sendFile(path.join(__dirname, '..', 'loaderio.txt')); });
 
 app.use('/', productRouter);
 
