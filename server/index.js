@@ -6,6 +6,7 @@ const productRouter = require('./routes.js');
 const port = process.env.SERVER_PORT || 2525;
 
 const app = express();
+app.use(express.static(‘public’))
 
 // app.use(morgan('tiny'));
 app.use(express.json());
