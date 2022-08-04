@@ -22,12 +22,6 @@ CREATE TABLE product(
   default_price INTEGER
 );
 
-CREATE TABLE related(
-  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  current_product_id INTEGER REFERENCES product(id),
-  related_product_id INTEGER REFERENCES product(id)
-);
-
 CREATE TABLE features(
   id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   product_id INTEGER REFERENCES product(id),
@@ -58,18 +52,24 @@ CREATE TABLE photos(
   thumbnail_url TEXT
 );
 
+CREATE TABLE related(
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  current_product_id INTEGER REFERENCES product(id),
+  related_product_id INTEGER REFERENCES product(id)
+);
+
 /*
 To add missing " in photos.csv
-sed -i 's/q=80$/q=80"/g' photos.csv
+sed -i '' 's/q=80$/q=80"/g' photos.csv
 */
 
 -- ETL code
 COPY product FROM '/Users/jessicachen/Downloads/product.csv' DELIMITER ',' CSV HEADER;
-COPY related FROM '/Users/jessicachen/Downloads/related.csv' DELIMITER ',' CSV HEADER where related_product_id > 0;
 COPY features FROM '/Users/jessicachen/Downloads/features.csv' DELIMITER ',' CSV HEADER;
 COPY styles FROM '/Users/jessicachen/Downloads/styles.csv' DELIMITER ',' NULL AS 'null' CSV HEADER;
 COPY skus FROM '/Users/jessicachen/Downloads/skus.csv' DELIMITER ',' CSV HEADER;
 COPY photos FROM '/Users/jessicachen/Downloads/photos.csv' DELIMITER ',' CSV HEADER;
+COPY related FROM '/Users/jessicachen/Downloads/related.csv' DELIMITER ',' CSV HEADER where related_product_id > 0;
 
 -- adds campus and time stamps to product table
 ALTER TABLE product
@@ -89,6 +89,14 @@ CREATE TRIGGER update_updated_at
   BEFORE UPDATE ON product
   FOR EACH ROW
   EXECUTE FUNCTION set_updatedAt();
+
+-- indexes
+CREATE INDEX product_id_hash_index ON product USING HASH (id);
+CREATE INDEX feature_product_id_hash_index ON features USING HASH (product_id);
+CREATE INDEX skus_style_id_hash_index ON skus USING HASH (styleId);
+CREATE INDEX styles_product_id_hash_index ON styles USING HASH (productId);
+CREATE INDEX photos_style_id_hash_index ON photos USING HASH (styleId);
+CREATE INDEX related_current_product_hash_index ON related USING HASH (current_product_id);
 
 /* Function versions of models
 -- query to get products, execute with $ SELECT * FROM get_products ORDER BY id LIMIT 5;
@@ -195,6 +203,8 @@ $$ LANGUAGE plpgsql;
 
 */
 
+----------------------------------------------------------------------------
+
 /* Original Denormalized tables
 
 CREATE TABLE product(
@@ -239,8 +249,4 @@ CREATE TABLE sku(
   quantity INTEGER,
   size VARCHAR(5)
 );
-*/
-
-/* makes an array of objects for features
-update product set features = (select json_agg(e) from (select feature, value from test_features where product_id = product.id)e);
 */
