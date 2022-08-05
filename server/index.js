@@ -4,7 +4,7 @@ const express = require('express');
 const productRouter = require('./routes.js');
 const path = require('path');
 
-const port = process.env.SERVER_PORT || 2525;
+const port = process.env.SERVER_PORT || 3000;
 
 const app = express();
 
