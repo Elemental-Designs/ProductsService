@@ -1,5 +1,5 @@
 # ProductsService
-[Performance](https://github.com/Elemental-Designs/ProductsService/blob/main/README.md#performance) | [Installation](https://github.com/Elemental-Designs/ProductsService/blob/main/README.md#installation) | [Testing](https://github.com/Elemental-Designs/ProductsService/blob/main/README.md#testing) | [Contributor] (https://github.com/Elemental-Designs/ProductsService/blob/main/README.md#contributor)
+[Performance](https://github.com/Elemental-Designs/ProductsService/blob/main/README.md#performance) | [Installation](https://github.com/Elemental-Designs/ProductsService/blob/main/README.md#installation) | [Testing](https://github.com/Elemental-Designs/ProductsService/blob/main/README.md#testing) | [Contributor](https://github.com/Elemental-Designs/ProductsService/blob/main/README.md#contributor)
 
 Tech stack used: ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white) ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white) ![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB) ![ESLint](https://img.shields.io/badge/ESLint-4B3263?style=for-the-badge&logo=eslint&logoColor=white) ![Mocha](https://img.shields.io/badge/-mocha-%238D6748?style=for-the-badge&logo=mocha&logoColor=white)
 
@@ -25,11 +25,20 @@ To stress test each query with K6, run
 $ k6 run <script.js>
 ```
 # Contributor
-Jessica: 
-         <a href="https://github.com/codingavatar">
-         <img src="https://img.shields.io/badge/github%20-%23121011.svg?&style=for-the-badge&logo=github&logoColor=white"/>
-         </a>
-         <a href="https://www.linkedin.com/in/jessica-chen-md/">
-         <img src="https://img.shields.io/badge/linkedin%20-%230077B5.svg?&style=for-the-badge&logo=linkedin&logoColor=white"/>
-         </a>
-         
+<table>
+  <tr>
+    <th>Jessica Chen</th>
+  </tr>
+  <tr>
+    <td>
+      <a href="https://github.com/codingavatar">
+        <img src="https://img.shields.io/badge/github%20-%23121011.svg?&style=for-the-badge&logo=github&logoColor=white"/>
+      </a>
+    </td>
+    <td>
+      <a href="https://www.linkedin.com/in/jessica-chen-md/">
+        <img src="https://img.shields.io/badge/linkedin%20-%230077B5.svg?&style=for-the-badge&logo=linkedin&logoColor=white"/>
+      </a>
+    </td>
+  </tr>
+</table>
